@@ -3,7 +3,6 @@ package ru.netology.nmedia.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -34,10 +33,11 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                if (post.likedByMe)
-                    viewModel.dislikeById(post.id)
-                else
-                    viewModel.likeById(post.id)
+                viewModel.likeById(post)
+//                if (post.likedByMe)
+//                    viewModel.dislikeById(post.id)
+//                else
+//                    viewModel.likeById(post.id)
             }
 
             override fun onRemove(post: Post) {
