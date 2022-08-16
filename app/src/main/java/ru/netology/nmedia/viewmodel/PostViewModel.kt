@@ -48,10 +48,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val old = _data.value?.posts.orEmpty()
         repository.likeByIdAsync(post, object : PostRepository.Callback<Post> {
             override fun onSuccess(result: Post) {
-                val posts = old + result.copy(
-                    likedByMe = !result.likedByMe,
-                    likes = if (result.likedByMe) result.likes - 1 else result.likes + 1
-                )
+                val posts = old.map {
+                    if (it.id == result.id) result else it
+                }
                 _data.postValue(FeedModel(posts = posts))
             }
 
@@ -64,9 +63,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun save() {
         val old = _data.value?.posts.orEmpty()
         edited.value?.let {
-            repository.saveAsync(it, object : PostRepository.Callback<List<Post>> {
-                override fun onSuccess(result: List<Post>) {
-                    _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
+            repository.saveAsync(it, object : PostRepository.Callback<Post> {
+                override fun onSuccess(result: Post) {
+                    val posts = listOf(result) + old
+                    _data.postValue(FeedModel(posts = posts))
                 }
 
                 override fun onError(e: Exception) {
