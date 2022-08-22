@@ -3,6 +3,7 @@ package ru.netology.nmedia.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +49,15 @@ class PostViewHolder(
                 .error(R.drawable.ic_error_100dp)
                 .timeout(5000)
                 .into(avatar)
+
+            contentImage.isVisible = post.attachment != null
+
+            Glide.with(contentImage)
+                .load("${PostRepositoryImpl.BASE_URL}/images/${post.attachment?.url}")
+                .placeholder(R.drawable.ic_loading_100dp)
+                .error(R.drawable.ic_error_100dp)
+                .timeout(5000)
+                .into(contentImage)
 
             author.text = post.author
             published.text = post.published
