@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -43,7 +44,7 @@ class PostViewHolder(
         binding.apply {
 
             Glide.with(avatar)
-                .load("${PostRepositoryImpl.BASE_URL}/avatars/${post.authorAvatar}")
+                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
                 .circleCrop()
                 .placeholder(R.drawable.ic_loading_100dp)
                 .error(R.drawable.ic_error_100dp)
@@ -53,7 +54,8 @@ class PostViewHolder(
             contentImage.isVisible = post.attachment != null
 
             Glide.with(contentImage)
-                .load("${PostRepositoryImpl.BASE_URL}/images/${post.attachment?.url}")
+                .load("http://10.0.2.2:9999/images/${post.attachment?.url}")
+                .fitCenter()
                 .placeholder(R.drawable.ic_loading_100dp)
                 .error(R.drawable.ic_error_100dp)
                 .timeout(5000)
