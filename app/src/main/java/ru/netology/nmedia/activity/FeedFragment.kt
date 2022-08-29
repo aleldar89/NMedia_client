@@ -64,6 +64,18 @@ class FeedFragment : Fragment() {
             binding.emptyText.isVisible = state.empty
         }
 
+        viewModel.exceptionMessage.observe(viewLifecycleOwner) {
+            if (it == null) {
+                return@observe
+            }
+
+            Toast.makeText(
+                context,
+                viewModel.exceptionMessage.toString(),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
         }
@@ -77,13 +89,6 @@ class FeedFragment : Fragment() {
             binding.swipeRefresh.isRefreshing = false
         }
 
-        if (viewModel.exceptionMessage?.isNotEmpty() == true) {
-            Toast.makeText(
-                context,
-                viewModel.exceptionMessage.toString(),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
         return binding.root
     }
 

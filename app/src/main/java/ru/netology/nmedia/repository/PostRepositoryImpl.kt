@@ -24,15 +24,7 @@ class PostRepositoryImpl: PostRepository {
         PostApiHolder.api.getAll()
             .enqueue(object : Callback<List<Post>> {
                 override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-                    if (!response.isSuccessful) {
-                        when (response.code()) {
-                            in 400..499 -> throw Exception("Client error")
-                            in 500..599 -> throw Exception("Server error")
-                        }
-                    }
-
-                    val body = response.body() ?: throw RuntimeException("body is null")
-                    callback.onSuccess(body)
+                    response.body()?.let { callback.onSuccess(it) }
                 }
 
                 override fun onFailure(call: Call<List<Post>>, t: Throwable) {
@@ -41,34 +33,11 @@ class PostRepositoryImpl: PostRepository {
             })
     }
 
-//    override fun getAllAsync(callback: PostRepository.Callback<List<Post>>) {
-//        PostApiHolder.api.getAll()
-//            .enqueue(object : Callback<List<Post>> {
-//                override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
-//                    if (!response.isSuccessful) {
-//                        error(response.message())
-//                    }
-//
-//                    val body = response.body() ?: throw RuntimeException("body is null")
-//                    callback.onSuccess(body)
-//                }
-//
-//                override fun onFailure(call: Call<List<Post>>, t: Throwable) {
-//                    callback.onError(RuntimeException(t))
-//                }
-//            })
-//    }
-
     override fun saveAsync(post: Post, callback: PostRepository.Callback<Post>) {
         PostApiHolder.api.save(post)
             .enqueue(object : Callback<Post> {
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (!response.isSuccessful) {
-                        error(response.message())
-                    }
-
-                    val body = response.body() ?: throw RuntimeException("body is null")
-                    callback.onSuccess(body)
+                    response.body()?.let { callback.onSuccess(it) }
                 }
 
                 override fun onFailure(call: Call<Post>, t: Throwable) {
@@ -81,12 +50,7 @@ class PostRepositoryImpl: PostRepository {
         PostApiHolder.api.like(post.id)
             .enqueue(object : Callback<Post> {
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (!response.isSuccessful) {
-                        error(response.message())
-                    }
-
-                    val body = response.body() ?: throw RuntimeException("body is null")
-                    callback.onSuccess(body)
+                    response.body()?.let { callback.onSuccess(it) }
                 }
 
                 override fun onFailure(call: Call<Post>, t: Throwable) {
@@ -99,12 +63,7 @@ class PostRepositoryImpl: PostRepository {
         PostApiHolder.api.unlike(post.id)
             .enqueue(object : Callback<Post> {
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    if (!response.isSuccessful) {
-                        error(response.message())
-                    }
-
-                    val body = response.body() ?: throw RuntimeException("body is null")
-                    callback.onSuccess(body)
+                    response.body()?.let { callback.onSuccess(it) }
                 }
 
                 override fun onFailure(call: Call<Post>, t: Throwable) {
@@ -117,11 +76,7 @@ class PostRepositoryImpl: PostRepository {
         PostApiHolder.api.delete(id)
             .enqueue(object : Callback<Unit> {
                 override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
-                    if (!response.isSuccessful) {
-                        error(response.message())
-                    }
-                    val body = response.body() ?: throw RuntimeException("body is null")
-                    callback.onSuccess(body)
+                    response.body()?.let { callback.onSuccess(it) }
                 }
 
                 override fun onFailure(call: Call<Unit>, t: Throwable) {

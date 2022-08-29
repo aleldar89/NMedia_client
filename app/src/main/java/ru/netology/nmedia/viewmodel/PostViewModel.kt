@@ -28,7 +28,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
-    var exceptionMessage: String? = null
+    private val _exceptionMessage = SingleLiveEvent<String?>()
+    val exceptionMessage: LiveData<String?>
+        get() = _exceptionMessage
 
     init {
         loadPosts()
@@ -43,23 +45,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(e: Exception) {
                 _data.value = FeedModel(error = true)
-                exceptionMessage = e.message
+                _exceptionMessage.value = e.message
             }
         })
     }
-
-//    fun loadPosts() {
-//        _data.value = FeedModel(loading = true)
-//        repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
-//            override fun onSuccess(result: List<Post>) {
-//                _data.value = FeedModel(posts = result, empty = result.isEmpty())
-//            }
-//
-//            override fun onError(e: Exception) {
-//                _data.value = FeedModel(error = true)
-//            }
-//        })
-//    }
 
     fun like(post: Post) {
         val old = _data.value?.posts.orEmpty()
@@ -73,6 +62,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(e: Exception) {
                 _data.value = _data.value?.copy(posts = old)
+                _exceptionMessage.value = e.message
             }
         })
     }
@@ -89,6 +79,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(e: Exception) {
                 _data.value = _data.value?.copy(posts = old)
+                _exceptionMessage.value = e.message
             }
         })
     }
@@ -104,6 +95,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
                 override fun onError(e: Exception) {
                     _data.value = _data.value?.copy(posts = old)
+                    _exceptionMessage.value = e.message
                 }
             })
             _postCreated.postValue(Unit)
@@ -135,6 +127,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             override fun onError(e: Exception) {
                 _data.value = _data.value?.copy(posts = old)
+                _exceptionMessage.value = e.message
             }
         })
     }

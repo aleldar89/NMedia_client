@@ -9,6 +9,7 @@ import retrofit2.create
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dto.Post
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 interface PostApi {
@@ -38,6 +39,19 @@ object PostApiHolder {
                 })
             } else {
                 it
+            }
+        }
+        .addInterceptor { chain ->
+            chain.proceed(
+                chain.request()
+            ).also { response ->
+                if (!response.isSuccessful) {
+                    when (response.code) {
+                        in 400..499 -> throw IOException("Client error")
+                        in 500..599 -> throw IOException("Server error")
+                    }
+                }
+                if (response.body == null) throw RuntimeException("body is null")
             }
         }
         .build()
