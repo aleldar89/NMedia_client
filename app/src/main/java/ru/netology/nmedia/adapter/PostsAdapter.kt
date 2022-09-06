@@ -3,10 +3,12 @@ package ru.netology.nmedia.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -42,12 +44,22 @@ class PostViewHolder(
         binding.apply {
 
             Glide.with(avatar)
-                .load("${PostRepositoryImpl.BASE_URL}/avatars/${post.authorAvatar}")
+                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
                 .circleCrop()
                 .placeholder(R.drawable.ic_loading_100dp)
                 .error(R.drawable.ic_error_100dp)
                 .timeout(5000)
                 .into(avatar)
+
+            contentImage.isVisible = post.attachment != null
+
+            Glide.with(contentImage)
+                .load("http://10.0.2.2:9999/images/${post.attachment?.url}")
+                .fitCenter()
+                .placeholder(R.drawable.ic_loading_100dp)
+                .error(R.drawable.ic_error_100dp)
+                .timeout(30000)
+                .into(contentImage)
 
             author.text = post.author
             published.text = post.published

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -33,11 +34,14 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post)
+                if (post.likedByMe)
+                    viewModel.unlike(post)
+                else
+                    viewModel.like(post)
             }
 
             override fun onRemove(post: Post) {
-                viewModel.removeById(post.id)
+                viewModel.delete(post.id)
             }
 
             override fun onShare(post: Post) {
@@ -58,6 +62,18 @@ class FeedFragment : Fragment() {
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
             binding.emptyText.isVisible = state.empty
+        }
+
+        viewModel.exceptionMessage.observe(viewLifecycleOwner) {
+            if (it == null) {
+                return@observe
+            }
+
+            Toast.makeText(
+                context,
+                viewModel.exceptionMessage.toString(),
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         binding.retryButton.setOnClickListener {
