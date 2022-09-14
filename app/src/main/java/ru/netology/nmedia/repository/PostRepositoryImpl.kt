@@ -26,12 +26,21 @@ class PostRepositoryImpl(
         postDao.insert(posts.map(PostEntity.Companion::fromDto))
     }
 
+//    override suspend fun removeById(id: Long) {
+//        postDao.removeById(id)
+//
+//        val response = PostsApi.retrofitService.removeById(id)
+//        if (!response.isSuccessful) {
+//            throw RuntimeException(response.message())
+//        }
+//    }
+
     override suspend fun removeById(id: Long) {
         postDao.removeById(id)
 
         val response = PostsApi.retrofitService.removeById(id)
         if (!response.isSuccessful) {
-            throw RuntimeException(response.message())
+            throw Exception(response.message())
         }
     }
 

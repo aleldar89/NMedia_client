@@ -23,12 +23,13 @@ private val empty = Post(
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    // упрощённый вариант
+
+    //локальная БД
     private val repository: PostRepository = PostRepositoryImpl(
         AppDb.getInstance(application).postDao()
     )
 
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+    var data: LiveData<FeedModel> = repository.data.map(::FeedModel)
 
     private val _state = MutableLiveData(FeedModelState())
     val state: LiveData<FeedModelState>
@@ -62,15 +63,37 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun removeById(id: Long) {
+        val oldData = data
+        val posts = data.value?.posts.orEmpty().filter { it.id != id }
+        val newData = MutableLiveData(FeedModel(posts = posts))
+
         viewModelScope.launch {
             try {
                 repository.removeById(id)
+                data = newData
                 _state.value = FeedModelState(error = false)
             } catch (e: Exception) {
+                data = oldData
                 _state.value = FeedModelState(error = true)
                 _error.value = e
             }
         }
+    }
+
+    fun save() {
+        edited.value?.let {
+            viewModelScope.launch {
+                try {
+                    repository.save(it)
+                    _state.value = FeedModelState(error = false)
+                } catch (e: Exception) {
+                    _state.value = FeedModelState(error = true)
+                    _error.value = e
+                }
+                _postCreated.postValue(Unit)
+            }
+        }
+        edited.value = empty
     }
 
     fun likeById(post: Post) {
@@ -95,22 +118,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _error.value = e
             }
         }
-    }
-
-    fun save() {
-        edited.value?.let {
-            viewModelScope.launch {
-                try {
-                    repository.save(it)
-                    _state.value = FeedModelState(error = false)
-                } catch (e: Exception) {
-                    _state.value = FeedModelState(error = true)
-                    _error.value = e
-                }
-                _postCreated.postValue(Unit)
-            }
-        }
-        edited.value = empty
     }
 
     fun edit(post: Post) {

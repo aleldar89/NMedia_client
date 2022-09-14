@@ -77,18 +77,6 @@ class FeedFragment : Fragment() {
                 .show()
         }
 
-//        viewModel.exceptionMessage.observe(viewLifecycleOwner) {
-//            if (it == null) {
-//                return@observe
-//            }
-//
-//            Toast.makeText(
-//                context,
-//                it,
-//                Toast.LENGTH_SHORT
-//            ).show()
-//        }
-
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
         }
