@@ -73,7 +73,9 @@ class FeedFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) {
             val errorMessage = viewModel.parseException(it)
             Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry_loading) { viewModel.loadPosts() }
+                .setAction(R.string.retry_loading) {
+                    viewModel.loadPosts()
+                }
                 .show()
         }
 

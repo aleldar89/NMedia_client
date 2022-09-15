@@ -12,6 +12,9 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getAll(): LiveData<List<PostEntity>>
 
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    fun getById(id: Long): PostEntity
+
     @Query("DELETE FROM PostEntity WHERE id = :id")
     suspend fun removeById(id: Long)
 
@@ -34,5 +37,8 @@ interface PostDao {
         WHERE id = :id
         """)
     suspend fun likeById(id: Long)
+
+    @Query("UPDATE PostEntity SET id = :id WHERE id = 0")
+    suspend fun updatePostId(id: Long)
 
 }
