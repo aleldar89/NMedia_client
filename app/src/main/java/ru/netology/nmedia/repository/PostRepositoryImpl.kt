@@ -44,21 +44,6 @@ class PostRepositoryImpl(
         }
     }
 
-    override suspend fun removeById(id: Long) {
-        try {
-            postDao.removeById(id)
-
-            val response = PostsApi.retrofitService.removeById(id)
-            if (!response.isSuccessful) {
-                throw Exception(response.message())
-            }
-        } catch (e: IOException) {
-            throw NetworkError
-        } catch (e: Exception) {
-            throw UnknownError
-        }
-    }
-
     override suspend fun likeById(post: Post) {
         try {
             postDao.likeById(post.id)
@@ -105,6 +90,42 @@ class PostRepositoryImpl(
                 }
             }
 
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun removeById(id: Long) {
+        try {
+            postDao.removeById(id)
+
+            val response = PostsApi.retrofitService.removeById(id)
+            if (!response.isSuccessful) {
+                throw Exception(response.message())
+            }
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun localSave(post: Post) {
+        try {
+            val postEntity = PostEntity.fromDto(post)
+            postDao.saveOld(postEntity)
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun localRemoveById(id: Long) {
+        try {
+            postDao.removeById(id)
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {

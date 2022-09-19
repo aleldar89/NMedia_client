@@ -69,7 +69,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.removeById(id)
                 _state.value = FeedModelState(error = false)
             } catch (e: Exception) {
-                repository.save(old)
+                try {
+                    repository.save(old)
+                } catch (e: Exception) {
+                    repository.localSave(old)
+                }
                 _state.value = FeedModelState(error = true)
                 _error.value = e
             }
@@ -83,7 +87,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     repository.save(it)
                     _state.value = FeedModelState(error = false)
                 } catch (e: Exception) {
-                    repository.removeById(it.id)
+                    try {
+                        repository.removeById(it.id)
+                    } catch (e: Exception) {
+                        repository.localRemoveById(it.id)
+                    }
                     _state.value = FeedModelState(error = true)
                     _error.value = e
                 }
@@ -100,7 +108,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.likeById(post)
                 _state.value = FeedModelState(error = false)
             } catch (e: Exception) {
-                repository.save(old)
+                try {
+                    repository.save(old)
+                } catch (e: Exception) {
+                    repository.localSave(old)
+                }
                 _state.value = FeedModelState(error = true)
                 _error.value = e
             }
@@ -114,7 +126,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 repository.dislikeById(post)
                 _state.value = FeedModelState(error = false)
             } catch (e: Exception) {
-                repository.save(old)
+                try {
+                    repository.save(old)
+                } catch (e: Exception) {
+                    repository.localSave(old)
+                }
                 _state.value = FeedModelState(error = true)
                 _error.value = e
             }
