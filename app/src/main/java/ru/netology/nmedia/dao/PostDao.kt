@@ -24,12 +24,6 @@ interface PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(posts: List<PostEntity>)
 
-//    @Query("UPDATE PostEntity SET content = :content WHERE id = :id")
-//    suspend fun updateContentById(id: Long, content: String)
-//
-//    suspend fun save(post: PostEntity) =
-//        if (post.id == 0L) insert(post) else updateContentById(post.id, post.content)
-
     @Query("""
         UPDATE PostEntity SET
         content = :content,
@@ -54,5 +48,8 @@ interface PostDao {
 
     @Query("UPDATE PostEntity SET id = :id WHERE id = 0")
     suspend fun updatePostId(id: Long)
+
+    @Query("SELECT * FROM PostEntity ORDER BY ID DESC LIMIT 1")
+    suspend fun selectLast(): PostEntity
 
 }

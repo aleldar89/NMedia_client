@@ -87,10 +87,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     repository.save(it)
                     _state.value = FeedModelState(error = false)
                 } catch (e: Exception) {
+                    val last = repository.selectLast()
                     try {
-                        repository.removeById(it.id)
+                        repository.removeById(last.id)
                     } catch (e: Exception) {
-                        repository.localRemoveById(it.id)
+                        repository.localRemoveById(last.id)
                     }
                     _state.value = FeedModelState(error = true)
                     _error.value = e

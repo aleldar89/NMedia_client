@@ -14,4 +14,5 @@ interface PostRepository {
 
     suspend fun localSave(post: Post)
     suspend fun localRemoveById(id: Long)
+    suspend fun selectLast(): Post
 }

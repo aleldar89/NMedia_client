@@ -133,4 +133,13 @@ class PostRepositoryImpl(
         }
     }
 
+    override suspend fun selectLast(): Post {
+        try {
+            return postDao.selectLast().toDto()
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
 }
