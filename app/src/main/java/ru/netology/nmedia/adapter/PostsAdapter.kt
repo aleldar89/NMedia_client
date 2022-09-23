@@ -48,7 +48,7 @@ class PostViewHolder(
                 .circleCrop()
                 .placeholder(R.drawable.ic_loading_100dp)
                 .error(R.drawable.ic_error_100dp)
-                .timeout(5000)
+                .timeout(10000)
                 .into(avatar)
 
             contentImage.isVisible = post.attachment != null
