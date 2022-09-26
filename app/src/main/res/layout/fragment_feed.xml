@@ -74,6 +74,19 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <Button
+            android:id="@+id/newPosts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/double_spacing"
+            android:text="↑ New posts"
+            android:backgroundTint="@color/blue"
+            android:visibility="gone"
+            app:cornerRadius="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
