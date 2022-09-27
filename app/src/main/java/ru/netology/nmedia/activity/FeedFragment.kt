@@ -58,8 +58,14 @@ class FeedFragment : Fragment() {
         })
 
         binding.list.adapter = adapter
+
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            val newPosts = adapter.currentList.size < state.posts.size
+            adapter.submitList(state.posts) {
+                if (newPosts) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
             binding.emptyText.isVisible = state.empty
         }
 
@@ -89,10 +95,9 @@ class FeedFragment : Fragment() {
 
         binding.newPosts.setOnClickListener() {
             // вывод на экран новых загруженных постов
-            // при нажатии отправляется запрос в базу и поле readed переключается в true
+            // при нажатии отправляется запрос в базу и поле shown переключается в true
             // todo плавный скролл наверх
             viewModel.refreshPosts()
-            binding.list.smoothScrollToPosition(0)
             binding.newPosts.isVisible = false
         }
 
