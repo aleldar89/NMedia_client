@@ -1,22 +1,23 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.error.*
+import kotlinx.coroutines.flow.*
+import ru.netology.nmedia.entity.toEntity
 import java.io.IOException
 
 
-class PostRepositoryImpl(
-    private val postDao: PostDao,
-): PostRepository {
+class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
 
-    override val data: LiveData<List<Post>> = postDao.getAll().map {
-        it.map(PostEntity::toDto)
-    }
+    override val data = postDao.getAll()
+        .map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
 
     override suspend fun getAll() {
         try {
@@ -27,12 +28,39 @@ class PostRepositoryImpl(
             val posts = response.body() ?: throw RuntimeException("body is null")
 
             postDao.insert(posts.map(PostEntity.Companion::fromDto))
+
+            // меняет статус на "показывать"
+            postDao.showAll()
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
             throw UnknownError
         }
     }
+
+    override suspend fun showAll() {
+        try {
+            postDao.showAll()
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
+    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
+        while (true) {
+            delay(10_000L)
+            val response = PostsApi.retrofitService.getNewer(latestPostId)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.insert(body.toEntity())
+            emit(body.size)
+        }
+    }
+        .catch { e -> throw AppError.from(e) }
+        .flowOn(Dispatchers.Default)
 
     override suspend fun getById(id: Long): Post {
         try {

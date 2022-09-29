@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -59,12 +58,18 @@ class FeedFragment : Fragment() {
         })
 
         binding.list.adapter = adapter
+
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            val newPosts = adapter.currentList.size < state.posts.size
+            adapter.submitList(state.posts) {
+                if (newPosts) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
             binding.emptyText.isVisible = state.empty
         }
 
-        viewModel.state.observe(viewLifecycleOwner) { state ->
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
 //            binding.swipeRefresh.isVisible = state.refreshing
@@ -81,6 +86,19 @@ class FeedFragment : Fragment() {
 
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
+        }
+
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            // кнопка появляется если количество новых постов не равно 0 и наоборот
+            binding.newPosts.isVisible = state != 0
+        }
+
+        binding.newPosts.setOnClickListener() {
+            // вывод на экран новых загруженных постов
+            // при нажатии отправляется запрос в базу и поле shown переключается в true
+            // todo плавный скролл наверх
+            viewModel.refreshPosts()
+            binding.newPosts.isVisible = false
         }
 
         binding.swipeRefresh.setOnRefreshListener {
