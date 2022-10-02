@@ -89,14 +89,10 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            // кнопка появляется если количество новых постов не равно 0 и наоборот
             binding.newPosts.isVisible = state != 0
         }
 
         binding.newPosts.setOnClickListener() {
-            // вывод на экран новых загруженных постов
-            // при нажатии отправляется запрос в базу и поле shown переключается в true
-            // todo плавный скролл наверх
             viewModel.refreshPosts()
             binding.newPosts.isVisible = false
         }

@@ -1,18 +1,21 @@
 package ru.netology.nmedia.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.view.isVisible
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.util.StringArg
+import ru.netology.nmedia.view.loadAvatar
+import ru.netology.nmedia.view.loadImage
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -40,26 +43,25 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    companion object {
+        var Bundle.textArg: String? by StringArg
+    }
+
     fun bind(post: Post) {
+
         binding.apply {
 
-            Glide.with(avatar)
-                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
-                .circleCrop()
-                .placeholder(R.drawable.ic_loading_100dp)
-                .error(R.drawable.ic_error_100dp)
-                .timeout(10000)
-                .into(avatar)
+            avatar.loadAvatar("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+            contentImage.loadImage("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
 
             contentImage.isVisible = post.attachment != null
 
-            Glide.with(contentImage)
-                .load("http://10.0.2.2:9999/images/${post.attachment?.url}")
-                .fitCenter()
-                .placeholder(R.drawable.ic_loading_100dp)
-                .error(R.drawable.ic_error_100dp)
-                .timeout(30000)
-                .into(contentImage)
+            contentImage.setOnClickListener {
+                Bundle().apply {
+                    textArg = post.id.toString()
+                }
+                findNavController(it).navigate(R.id.action_feedFragment_to_imageFragment)
+            }
 
             author.text = post.author
             published.text = post.published
