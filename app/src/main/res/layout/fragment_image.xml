@@ -7,9 +7,10 @@
     tools:context=".activity.NewPostFragment">
 
     <ImageView
-        android:id="@+id/single_photo"
+        android:id="@+id/single_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_anchorGravity="center" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/black" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

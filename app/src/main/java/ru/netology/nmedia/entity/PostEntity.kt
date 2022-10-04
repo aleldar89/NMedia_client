@@ -46,7 +46,6 @@ data class PostEntity(
                     AttachmentEmbedded(it.url, it.type)
                 }
             )
-
     }
 }
 

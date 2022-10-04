@@ -22,6 +22,8 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+//    suspend fun onImage(post: Post) {}
+    fun onImage(post: Post) {}
 }
 
 class PostsAdapter(
@@ -57,10 +59,7 @@ class PostViewHolder(
             contentImage.isVisible = post.attachment != null
 
             contentImage.setOnClickListener {
-                Bundle().apply {
-                    textArg = post.id.toString()
-                }
-                findNavController(it).navigate(R.id.action_feedFragment_to_imageFragment)
+                onInteractionListener.onImage(post)
             }
 
             author.text = post.author

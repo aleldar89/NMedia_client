@@ -4,6 +4,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import ru.netology.nmedia.R
 
 fun ImageView.loadImage(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
@@ -13,7 +14,7 @@ fun ImageView.loadImage(url: String, vararg transforms: BitmapTransformation = e
         .placeholder(R.drawable.ic_loading_100dp)
         .error(R.drawable.ic_error_100dp)
         .transform(*transforms)
-        .timeout(10_000)
+        .timeout(30_000)
         .into(this)
 
 fun ImageView.loadAvatar(url: String, vararg transforms: BitmapTransformation = emptyArray()) =

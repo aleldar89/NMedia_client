@@ -63,7 +63,17 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         .catch { e -> throw AppError.from(e) }
         .flowOn(Dispatchers.Default)
 
-    override suspend fun getById(id: Long): Post {
+//    override suspend fun getById(id: Long): Post {
+//        try {
+//            return postDao.getById(id).toDto()
+//        } catch (e: IOException) {
+//            throw NetworkError
+//        } catch (e: Exception) {
+//            throw UnknownError
+//        }
+//    }
+
+    override fun getById(id: Long): Post {
         try {
             return postDao.getById(id).toDto()
         } catch (e: IOException) {

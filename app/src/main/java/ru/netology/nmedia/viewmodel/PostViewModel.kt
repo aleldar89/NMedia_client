@@ -154,28 +154,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = empty
     }
 
-    //    fun save() {
-//        edited.value?.let {
-//            viewModelScope.launch {
-//                try {
-//                    repository.save(it)
-//                    _dataState.value = FeedModelState(error = false)
-//                } catch (e: Exception) {
-//                    val last = repository.selectLast()
-//                    try {
-//                        repository.removeById(last.id)
-//                    } catch (e: Exception) {
-//                        repository.localRemoveById(last.id)
-//                    }
-//                    _dataState.value = FeedModelState(error = true)
-//                    _error.value = e
-//                }
-//                _postCreated.postValue(Unit)
-//            }
-//        }
-//        edited.value = empty
-//    }
-
     fun likeById(post: Post) {
         viewModelScope.launch {
             val old = repository.getById(post.id)
@@ -236,13 +214,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // функция для получения url картинки из репозитория по id поста
-    suspend fun getUrlById(id: Long): String? {
-        return withContext(viewModelScope.coroutineContext) {
-            repository.getById(id).attachment?.url
-        }
-    }
-
+    fun getUrlById(id: Long): String? = repository.getById(id).attachment?.url
 
     fun parseException (e: Exception) = when (e) {
         is ConnectException -> "Internet error"
