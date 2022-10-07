@@ -10,8 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.adapter.PostViewHolder.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
@@ -27,6 +29,8 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
+
+        val gson = Gson()
 
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
@@ -55,6 +59,17 @@ class FeedFragment : Fragment() {
                     Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(shareIntent)
             }
+
+            override fun onImage(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_imageFragment,
+                    Bundle().apply {
+                        textArg = viewModel.getUrlById(post.id)
+//                        textArg = gson.toJson(post)
+                    }
+                )
+            }
+
         })
 
         binding.list.adapter = adapter
@@ -89,14 +104,10 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            // кнопка появляется если количество новых постов не равно 0 и наоборот
             binding.newPosts.isVisible = state != 0
         }
 
-        binding.newPosts.setOnClickListener() {
-            // вывод на экран новых загруженных постов
-            // при нажатии отправляется запрос в базу и поле shown переключается в true
-            // todo плавный скролл наверх
+        binding.newPosts.setOnClickListener {
             viewModel.refreshPosts()
             binding.newPosts.isVisible = false
         }

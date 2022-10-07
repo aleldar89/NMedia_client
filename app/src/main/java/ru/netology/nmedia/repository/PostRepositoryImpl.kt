@@ -4,12 +4,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.dao.PostDao
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.error.*
 import kotlinx.coroutines.flow.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.toEntity
+import java.io.File
 import java.io.IOException
 
 
@@ -28,8 +31,6 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
             val posts = response.body() ?: throw RuntimeException("body is null")
 
             postDao.insert(posts.map(PostEntity.Companion::fromDto))
-
-            // меняет статус на "показывать"
             postDao.showAll()
         } catch (e: IOException) {
             throw NetworkError
@@ -62,7 +63,17 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         .catch { e -> throw AppError.from(e) }
         .flowOn(Dispatchers.Default)
 
-    override suspend fun getById(id: Long): Post {
+//    override suspend fun getById(id: Long): Post {
+//        try {
+//            return postDao.getById(id).toDto()
+//        } catch (e: IOException) {
+//            throw NetworkError
+//        } catch (e: Exception) {
+//            throw UnknownError
+//        }
+//    }
+
+    override fun getById(id: Long): Post {
         try {
             return postDao.getById(id).toDto()
         } catch (e: IOException) {
@@ -125,6 +136,40 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         }
     }
 
+    override suspend fun saveWithAttachment(post: Post, file: File) {
+        try {
+//            val postEntity = PostEntity.fromDto(post)
+//            postDao.save(postEntity)
+
+            val media = upload(file)
+
+            val response = PostsApi.retrofitService.save(
+                post.copy(
+                    attachment = Attachment(
+                        url = media.id,
+                        type = AttachmentType.IMAGE
+                    )
+                )
+            )
+
+            if (!response.isSuccessful) {
+                throw RuntimeException(response.message())
+            } else {
+                val _post = response.body()
+                if (_post != null) {
+                    postDao.updatePostId(_post.id)
+                }
+            }
+            val body = response.body() ?: throw ApiError(response.code(), response.message())
+            postDao.insert(PostEntity.fromDto(body))
+
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
     override suspend fun removeById(id: Long) {
         try {
             postDao.removeById(id)
@@ -169,5 +214,18 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         } catch (e: Exception) {
             throw UnknownError
         }
+    }
+
+    private suspend fun upload (file: File) : Media {
+        val media = MultipartBody.Part.createFormData(
+            "file", file.name, file.asRequestBody()
+        )
+
+        val response = PostsApi.retrofitService.upload(media)
+        if (!response.isSuccessful) {
+            throw ApiError(response.code(), response.message())
+        }
+
+        return response.body() ?: throw ApiError(response.code(), response.message())
     }
 }

@@ -1,16 +1,22 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
-import ru.netology.nmedia.repository.*
+import ru.netology.nmedia.model.MediaModel
+import ru.netology.nmedia.repository.PostRepository
+import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 import java.io.IOException
 import java.net.ConnectException
 
@@ -38,6 +44,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+
+    private val noPhoto = MediaModel()
+
+    private val _media = MutableLiveData(noPhoto)
+    val media: LiveData<MediaModel>
+        get() = _media
 
     private val emptyNewerCount = MutableLiveData<Int>()
 
@@ -79,6 +91,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun clearPhoto() {
+        _media.value = null
+    }
+
+    fun changePhoto(uri: Uri, file: File) {
+        _media.value = MediaModel(uri, file)
+    }
+
     fun refreshPosts() = viewModelScope.launch {
         try {
             _dataState.value = FeedModelState(refreshing = true)
@@ -111,7 +131,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let {
             viewModelScope.launch {
                 try {
-                    repository.save(it)
+                    when (val mediaModel = _media.value) {
+                        null -> repository.save(it)
+                        else -> mediaModel.file?.let { file ->
+                            repository.saveWithAttachment(it, file)
+                        }
+                    }
                     _dataState.value = FeedModelState(error = false)
                 } catch (e: Exception) {
                     val last = repository.selectLast()
@@ -188,6 +213,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun getUrlById(id: Long): String? = repository.getById(id).attachment?.url
 
     fun parseException (e: Exception) = when (e) {
         is ConnectException -> "Internet error"
