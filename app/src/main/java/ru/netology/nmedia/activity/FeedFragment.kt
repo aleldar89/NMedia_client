@@ -30,8 +30,6 @@ class FeedFragment : Fragment() {
     ): View {
         val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-        val gson = Gson()
-
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
@@ -64,8 +62,7 @@ class FeedFragment : Fragment() {
                 findNavController().navigate(
                     R.id.action_feedFragment_to_imageFragment,
                     Bundle().apply {
-                        textArg = viewModel.getUrlById(post.id)
-//                        textArg = gson.toJson(post)
+                        textArg = post.attachment?.url
                     }
                 )
             }

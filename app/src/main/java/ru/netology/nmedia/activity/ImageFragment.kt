@@ -18,8 +18,6 @@ class ImageFragment : Fragment() {
         var Bundle.textArg: String? by StringArg
     }
 
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

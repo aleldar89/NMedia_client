@@ -214,8 +214,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getUrlById(id: Long): String? = repository.getById(id).attachment?.url
-
     fun parseException (e: Exception) = when (e) {
         is ConnectException -> "Internet error"
         is IOException -> "Server error"

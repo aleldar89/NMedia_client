@@ -22,7 +22,6 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
-//    suspend fun onImage(post: Post) {}
     fun onImage(post: Post) {}
 }
 
@@ -65,7 +64,6 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
 
