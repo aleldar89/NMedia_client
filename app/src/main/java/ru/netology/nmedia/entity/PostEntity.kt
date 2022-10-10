@@ -11,6 +11,7 @@ data class PostEntity(
     val id: Long,
     val author: String,
     val authorAvatar: String,
+    val authorId: Long,
     val content: String,
     val published: String,
     val likedByMe: Boolean,
@@ -23,13 +24,16 @@ data class PostEntity(
         id = id,
         author = author,
         authorAvatar = authorAvatar,
+        authorId = authorId,
         content = content,
         published = published,
         likedByMe = likedByMe,
+        ownedByMe = false,
         likes = likes,
-        attachment = attachment?.let {
-            Attachment(it.url, it.type)
-        }
+//        attachment = attachment?.let {
+//            Attachment(it.url, it.type)
+//        }
+        attachment = attachment?.toDto()
     )
 
     companion object {
@@ -38,6 +42,7 @@ data class PostEntity(
                 id = dto.id,
                 author = dto.author,
                 authorAvatar = dto.authorAvatar,
+                authorId = dto.authorId,
                 content = dto.content,
                 published = dto.published,
                 likedByMe = dto.likedByMe,
@@ -55,4 +60,12 @@ fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDto)
 data class AttachmentEmbedded(
     val url: String,
     val type: AttachmentType,
-)
+) {
+    fun toDto() = Attachment(url, type)
+
+    companion object {
+        fun fromDto(dto: Attachment?) = dto?.let {
+            AttachmentEmbedded(it.url, it.type)
+        }
+    }
+}

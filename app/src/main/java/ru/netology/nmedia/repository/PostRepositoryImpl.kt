@@ -206,7 +206,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         }
     }
 
-    private suspend fun upload (file: File) : Media {
+    private suspend fun upload (file: File): Media {
         val media = MultipartBody.Part.createFormData(
             "file", file.name, file.asRequestBody()
         )

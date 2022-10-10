@@ -23,4 +23,9 @@
     <string name="channel_remote_description">Уведомления с удалённого сервера</string>
     <string name="menu_refresh">Обновление экрана</string>
     <string name="clear">Очистить</string>
+    <string name="sign_in">Зарегистрироваться</string>
+    <string name="logout">Выйти</string>
+    <string name="sign_up">Авторизоваться</string>
+    <string name="enter">Войти</string>
+    <string name="error_empty_registration_form">Не введен логин или пароль</string>
 </resources>

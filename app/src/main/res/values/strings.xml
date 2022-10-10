@@ -22,4 +22,9 @@
     <string name="channel_remote_name">Server notifications</string>
     <string name="channel_remote_description">Notifications from remote server</string>
     <string name="clear">Clear</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="logout">Logout</string>
+    <string name="enter">Enter</string>
+    <string name="error_empty_registration_form">No login or password entered</string>
 </resources>
