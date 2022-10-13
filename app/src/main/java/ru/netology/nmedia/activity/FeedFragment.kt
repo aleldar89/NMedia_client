@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
@@ -66,6 +67,12 @@ class FeedFragment : Fragment() {
                 )
             }
 
+            override fun onUnauthorized(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_registrationFragment
+                )
+            }
+
         })
 
         binding.list.adapter = adapter
@@ -114,7 +121,10 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (viewModel.isAuthorized)
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            else
+                findNavController().navigate(R.id.action_feedFragment_to_registrationFragment)
         }
 
         return binding.root

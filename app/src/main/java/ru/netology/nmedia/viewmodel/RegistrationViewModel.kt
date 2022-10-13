@@ -6,19 +6,22 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.auth.AuthState
 
 class RegistrationViewModel(application: Application) : AndroidViewModel(application) {
 
-//    suspend fun updateUser(login: String, pass: String): String {
-//        return PostsApi.retrofitService.updateUser(login, pass).toString()
+//    suspend fun updateUser(login: String, pass: String): AuthState? {
+//        return PostsApi.retrofitService.updateUser(login, pass).body()
 //    }
 
-    var tokenString: String? = null
+    fun updateUser(login: String, pass: String): AuthState? {
+        var responseAuthState: AuthState? = null
 
-    fun updateUser(login: String, pass: String) {
         viewModelScope.launch {
-            tokenString = PostsApi.retrofitService.updateUser(login, pass).toString()
+            responseAuthState = PostsApi.retrofitService.updateUser(login, pass).body()
         }
+
+        return responseAuthState
     }
 
     fun saveToken(token: String, id: Long) {

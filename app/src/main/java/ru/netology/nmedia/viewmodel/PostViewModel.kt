@@ -35,6 +35,12 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
+    var isAuthorized = AppAuth.getInstance()
+        .data
+        .asLiveData()
+        .value
+        ?.token != null
+
     //локальная БД
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
@@ -89,7 +95,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadPosts()
     }
-
 
     fun loadPosts() {
         viewModelScope.launch {

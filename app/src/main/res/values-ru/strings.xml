@@ -28,4 +28,5 @@
     <string name="sign_up">Авторизоваться</string>
     <string name="enter">Войти</string>
     <string name="error_empty_registration_form">Не введен логин или пароль</string>
+    <string name="error_registration">Ошибка регистрации, попробуйте позже</string>
 </resources>

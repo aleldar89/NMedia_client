@@ -27,4 +27,5 @@
     <string name="logout">Logout</string>
     <string name="enter">Enter</string>
     <string name="error_empty_registration_form">No login or password entered</string>
+    <string name="error_registration">Registration failed, try later</string>
 </resources>

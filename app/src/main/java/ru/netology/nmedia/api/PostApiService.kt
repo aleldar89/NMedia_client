@@ -9,6 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dto.*
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
@@ -67,7 +68,8 @@ interface PostsApiService {
 
     @FormUrlEncoded
     @POST("users/authentication")
-    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<String>
+    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<AuthState>
+
 }
 
 object PostsApi {

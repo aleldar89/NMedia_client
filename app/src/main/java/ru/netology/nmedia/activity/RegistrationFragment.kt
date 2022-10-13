@@ -8,9 +8,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.google.gson.Gson
+import kotlinx.coroutines.coroutineScope
 import ru.netology.nmedia.R
-import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.viewmodel.RegistrationViewModel
 
@@ -42,21 +41,17 @@ class RegistrationFragment : Fragment() {
             return@setOnClickListener
             }
 
-            val gson = Gson()
+            val auth = viewModel.updateUser(login, pass)
 
-//            val auth = gson.fromJson(
-//                viewModel.updateUser(login, pass),
-//                AuthState::class.java
-//                )
-
-            viewModel.updateUser(login, pass)
-
-            val auth = gson.fromJson(
-                viewModel.tokenString,
-                AuthState::class.java
-            )
-
-            viewModel.saveToken(auth.token, auth.id)
+            if (auth != null) {
+                viewModel.saveToken(auth.token, auth.id)
+            } else {
+                Toast.makeText(
+                    context,
+                    context?.getString(R.string.error_registration),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
 
             findNavController().navigateUp()
         }
