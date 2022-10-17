@@ -19,6 +19,7 @@ build/
 out/
 
 app/src/google-services.json
+fcm.json
 
 ### Android Studio ###
 local.properties

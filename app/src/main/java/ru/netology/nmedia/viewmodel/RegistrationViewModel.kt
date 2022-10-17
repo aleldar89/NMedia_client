@@ -2,26 +2,23 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.PostsApi
-import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.auth.AuthState
+import ru.netology.nmedia.auth.*
 
 class RegistrationViewModel(application: Application) : AndroidViewModel(application) {
 
-//    suspend fun updateUser(login: String, pass: String): AuthState? {
-//        return PostsApi.retrofitService.updateUser(login, pass).body()
-//    }
+    private val _responseAuthState = MutableLiveData<AuthState?>(null)
+    val responseAuthState: LiveData<AuthState?>
+        get() = _responseAuthState
 
-    fun updateUser(login: String, pass: String): AuthState? {
-        var responseAuthState: AuthState? = null
-
+    fun updateUser(login: String, pass: String) {
         viewModelScope.launch {
-            responseAuthState = PostsApi.retrofitService.updateUser(login, pass).body()
+            _responseAuthState.value = PostsApi.retrofitService.updateUser(login, pass).body()
         }
-
-        return responseAuthState
     }
 
     fun saveToken(token: String, id: Long) {

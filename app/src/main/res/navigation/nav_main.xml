@@ -37,7 +37,11 @@
         android:id="@+id/newPostFragment"
         android:name="ru.netology.nmedia.activity.NewPostFragment"
         android:label="fragment_new_post"
-        tools:layout="@layout/fragment_new_post" />
+        tools:layout="@layout/fragment_new_post" >
+        <action
+            android:id="@+id/action_newPostFragment_to_myDialogFragment"
+            app:destination="@id/myDialogFragment" />
+    </fragment>
     <fragment
         android:id="@+id/imageFragment"
         android:name="ru.netology.nmedia.activity.ImageFragment"
@@ -48,4 +52,12 @@
         android:name="ru.netology.nmedia.activity.RegistrationFragment"
         android:label="fragment_registration"
         tools:layout="@layout/fragment_registration" />
+    <dialog
+        android:id="@+id/myDialogFragment"
+        android:name="ru.netology.nmedia.activity.MyDialogFragment"
+        android:label="MyDialogFragment" >
+        <action
+            android:id="@+id/action_myDialogFragment_to_feedFragment"
+            app:destination="@id/feedFragment" />
+    </dialog>
 </navigation>

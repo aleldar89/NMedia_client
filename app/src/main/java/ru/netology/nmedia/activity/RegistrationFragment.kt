@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.coroutineScope
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
+import ru.netology.nmedia.view.createToast
 import ru.netology.nmedia.viewmodel.RegistrationViewModel
 
 class RegistrationFragment : Fragment() {
@@ -33,24 +33,18 @@ class RegistrationFragment : Fragment() {
             val pass = binding.password.text.toString()
 
             if (login.isBlank() || pass.isBlank()) {
-                Toast.makeText(
-                    context,
-                    context?.getString(R.string.error_empty_registration_form),
-                    Toast.LENGTH_SHORT
-                ).show()
-            return@setOnClickListener
+                it.createToast(R.string.error_empty_registration_form)
+                return@setOnClickListener
+            } else {
+                viewModel.updateUser(login, pass)
             }
 
-            val auth = viewModel.updateUser(login, pass)
-
-            if (auth != null) {
-                viewModel.saveToken(auth.token, auth.id)
-            } else {
-                Toast.makeText(
-                    context,
-                    context?.getString(R.string.error_registration),
-                    Toast.LENGTH_SHORT
-                ).show()
+            viewModel.responseAuthState.observe(viewLifecycleOwner) { authState ->
+                if (authState != null) {
+                    viewModel.saveToken(authState.token, authState.id)
+                } else {
+                    view?.createToast(R.string.error_registration)
+                }
             }
 
             findNavController().navigateUp()
