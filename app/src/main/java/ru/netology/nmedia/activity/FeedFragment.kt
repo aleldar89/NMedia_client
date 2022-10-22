@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
@@ -18,6 +17,7 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
+import ru.netology.nmedia.util.parseException
 
 class FeedFragment : Fragment() {
 
@@ -69,7 +69,7 @@ class FeedFragment : Fragment() {
 
             override fun onUnauthorized(post: Post) {
                 findNavController().navigate(
-                    R.id.action_feedFragment_to_registrationFragment
+                    R.id.action_feedFragment_to_authentificationFragment
                 )
             }
 
@@ -94,7 +94,7 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
-            val errorMessage = viewModel.parseException(it)
+            val errorMessage = parseException(it)
             Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG)
                 .setAction(R.string.retry_loading) {
                     viewModel.loadPosts()
@@ -124,7 +124,7 @@ class FeedFragment : Fragment() {
             if (viewModel.isAuthorized)
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
             else
-                findNavController().navigate(R.id.action_feedFragment_to_registrationFragment)
+                findNavController().navigate(R.id.action_feedFragment_to_authentificationFragment)
         }
 
         return binding.root

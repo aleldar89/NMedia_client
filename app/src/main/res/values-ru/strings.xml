@@ -30,4 +30,6 @@
     <string name="error_empty_registration_form">Не введен логин или пароль</string>
     <string name="error_registration">Ошибка регистрации, попробуйте позже</string>
     <string name="cancel">Отмена</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="error_confirm_password">Подтвердите пароль</string>
 </resources>

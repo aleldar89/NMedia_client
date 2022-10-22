@@ -56,15 +56,17 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         when (item.itemId) {
             R.id.sign_in -> {
                 findNavController(R.id.nav_host_fragment)
-                    .navigate(R.id.action_feedFragment_to_registrationFragment)
+                    .navigate(R.id.action_feedFragment_to_authentificationFragment)
                 true
             }
             R.id.sign_up -> {
-                AppAuth.getInstance().saveAuth("x-token", 5)
+                findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_feedFragment_to_registrationFragment)
                 true
             }
             R.id.log_out -> {
-                AppAuth.getInstance().clearAuth()
+                findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_feedFragment_to_myDialogFragment)
                 true
             }
             else -> false

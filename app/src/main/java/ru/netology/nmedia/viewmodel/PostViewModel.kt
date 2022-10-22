@@ -35,11 +35,11 @@ private val empty = Post(
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    var isAuthorized = AppAuth.getInstance()
-        .data
-        .asLiveData()
-        .value
-        ?.token != null
+    val isAuthorized: Boolean
+        get() = AppAuth.getInstance()
+            .data
+            .value
+            ?.token != null
 
     //локальная БД
     private val repository: PostRepository =
@@ -170,6 +170,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         edited.value = empty
+        clearPhoto()
     }
 
     fun likeById(post: Post) {
@@ -230,12 +231,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _error.value = e
             }
         }
-    }
-
-    fun parseException (e: Exception) = when (e) {
-        is ConnectException -> "Internet error"
-        is IOException -> "Server error"
-        else -> "Unknown error"
     }
 
 }

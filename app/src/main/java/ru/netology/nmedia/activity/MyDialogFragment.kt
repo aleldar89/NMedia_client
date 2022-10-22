@@ -6,15 +6,18 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+
 
 class MyDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val builder = AlertDialog.Builder(it)
-            builder.setTitle("Вы уверены?")
+            builder.setTitle(R.string.are_you_sure)
                 .setPositiveButton(R.string.logout) { _, _ ->
-                    findNavController().navigate(R.id.action_myDialogFragment_to_feedFragment)
+                    AppAuth.getInstance().clearAuth()
+                    findNavController().navigate(R.id.feedFragment)
                 }
                 .setNegativeButton(R.string.cancel) { _, _ ->
                     findNavController().navigateUp()

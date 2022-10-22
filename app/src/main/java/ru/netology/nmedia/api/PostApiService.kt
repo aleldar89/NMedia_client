@@ -10,6 +10,7 @@ import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.*
 import ru.netology.nmedia.dto.*
+import ru.netology.nmedia.user.User
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
 
@@ -67,7 +68,18 @@ interface PostsApiService {
 
     @FormUrlEncoded
     @POST("users/authentication")
-    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<AuthState>
+    suspend fun updateUser(
+        @Field("login") login: String,
+        @Field("pass") pass: String
+    ): Response<AuthState>
+
+    @FormUrlEncoded
+    @POST("users/registration")
+    suspend fun registerUser(
+        @Field("login") login: String,
+        @Field("pass") pass: String,
+        @Field("name") name: String
+    ): Response<AuthState>
 
 }
 

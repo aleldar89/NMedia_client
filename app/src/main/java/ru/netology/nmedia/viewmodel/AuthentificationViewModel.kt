@@ -9,10 +9,9 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.api.PostsApi
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
-import ru.netology.nmedia.user.User
 import ru.netology.nmedia.util.SingleLiveEvent
 
-class RegistrationViewModel(application: Application) : AndroidViewModel(application) {
+class AuthentificationViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _responseAuthState = MutableLiveData<AuthState?>(null)
     val responseAuthState: LiveData<AuthState?>
@@ -22,10 +21,10 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
     val error: LiveData<Exception>
         get() = _error
 
-    fun updateUser(login: String, pass: String, name: String) {
+    fun updateUser(login: String, pass: String) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = PostsApi.retrofitService.registerUser(login, pass, name).body()
+                _responseAuthState.value = PostsApi.retrofitService.updateUser(login, pass).body()
             } catch (e: Exception) {
                 _error.value = e
             }

@@ -14,16 +14,6 @@
         android:layout_gravity="center">
 
         <EditText
-            android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/common_spacing"
-            android:background="@android:color/transparent"
-            android:gravity="start|top"
-            android:hint="Your name"
-            android:inputType="textMultiLine" />
-
-        <EditText
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -40,15 +30,6 @@
             android:layout_marginBottom="@dimen/common_spacing"
             android:ems="10"
             android:hint="Your password"
-            android:inputType="textPassword" />
-
-        <EditText
-            android:id="@+id/confirm_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/common_spacing"
-            android:ems="10"
-            android:hint="Confirm your password"
             android:inputType="textPassword" />
 
         <Button
