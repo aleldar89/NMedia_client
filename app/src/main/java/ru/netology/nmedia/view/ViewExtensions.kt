@@ -1,9 +1,11 @@
 package ru.netology.nmedia.view
 
+import android.content.ContentProvider
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CircleCrop

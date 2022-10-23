@@ -2,6 +2,7 @@ package ru.netology.nmedia.api
 
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -10,7 +11,6 @@ import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.auth.*
 import ru.netology.nmedia.dto.*
-import ru.netology.nmedia.user.User
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
 
@@ -69,9 +69,7 @@ interface PostsApiService {
     @FormUrlEncoded
     @POST("users/authentication")
     suspend fun updateUser(
-        @Field("login") login: String,
-        @Field("pass") pass: String
-    ): Response<AuthState>
+        @Field("login") login: String, @Field("pass") pass: String): Response<AuthState>
 
     @FormUrlEncoded
     @POST("users/registration")
@@ -79,6 +77,15 @@ interface PostsApiService {
         @Field("login") login: String,
         @Field("pass") pass: String,
         @Field("name") name: String
+    ): Response<AuthState>
+
+    @Multipart
+    @POST("users/registration")
+    suspend fun registerWithPhoto(
+        @Part("login") login: RequestBody,
+        @Part("pass") pass: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part media: MultipartBody.Part,
     ): Response<AuthState>
 
 }

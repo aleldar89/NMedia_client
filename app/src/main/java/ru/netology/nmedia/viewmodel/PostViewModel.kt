@@ -11,15 +11,10 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
-import ru.netology.nmedia.model.FeedModelState
-import ru.netology.nmedia.model.MediaModel
-import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.model.*
+import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
-import java.io.IOException
-import java.net.ConnectException
 
 private val empty = Post(
     id = 0,
@@ -65,7 +60,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         get() = _dataState
 
     private val noPhoto = MediaModel()
-
     private val _media = MutableLiveData(noPhoto)
     val media: LiveData<MediaModel>
         get() = _media

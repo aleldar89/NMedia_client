@@ -31,4 +31,6 @@
     <string name="error_empty_registration_form">No login or password entered</string>
     <string name="error_confirm_password">Сonfirm the password</string>
     <string name="error_registration">Registration failed, try later</string>
+    <string name="choose_avatar">Choose your avatar</string>
+    <string name="image_error">Image not captured</string>
 </resources>
