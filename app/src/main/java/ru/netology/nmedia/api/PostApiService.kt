@@ -1,8 +1,8 @@
 package ru.netology.nmedia.api
 
+import okhttp3.RequestBody
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -40,7 +40,7 @@ private val retrofit = Retrofit.Builder()
     .client(okhttp)
     .build()
 
-interface PostsApiService {
+interface ApiService {
     @GET("posts")
     suspend fun getAll(): Response<List<Post>>
 
@@ -88,10 +88,13 @@ interface PostsApiService {
         @Part media: MultipartBody.Part,
     ): Response<AuthState>
 
+    @POST("users/push-tokens")
+    suspend fun sendPushToken(@Body pushToken: PushToken): Response<Unit>
+
 }
 
-object PostsApi {
-    val retrofitService: PostsApiService by lazy {
-        retrofit.create(PostsApiService::class.java)
+object ApiServiceHolder {
+    val service: ApiService by lazy {
+        retrofit.create(ApiService::class.java)
     }
 }

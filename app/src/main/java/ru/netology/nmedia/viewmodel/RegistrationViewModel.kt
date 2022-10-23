@@ -11,7 +11,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.ApiServiceHolder
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.model.MediaModel
@@ -44,7 +44,7 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
     fun registerUser(login: String, pass: String, name: String) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = PostsApi.retrofitService.registerUser(login, pass, name).body()
+                _responseAuthState.value = ApiServiceHolder.service.registerUser(login, pass, name).body()
             } catch (e: Exception) {
                 _error.value = e
             }
@@ -54,7 +54,7 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
     fun registerWithPhoto(login: String, pass: String, name: String, file: File) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = PostsApi.retrofitService.registerWithPhoto(
+                _responseAuthState.value = ApiServiceHolder.service.registerWithPhoto(
                     login.toRequestBody("text/plain".toMediaType()),
                     pass.toRequestBody("text/plain".toMediaType()),
                     name.toRequestBody("text/plain".toMediaType()),

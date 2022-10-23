@@ -10,6 +10,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 
@@ -33,17 +34,40 @@ class FCMService : FirebaseMessagingService() {
         }
     }
 
-    override fun onMessageReceived(message: RemoteMessage) {
+//    override fun onMessageReceived(message: RemoteMessage) {
+//        message.data[action]?.let {
+//           when (Action.valueOf(it)) {
+//              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
+//           }
+//        }
+//    }
 
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
+    override fun onMessageReceived(message: RemoteMessage) {
+        val id = AppAuth.getInstance().data.value?.id
+        val push = gson.fromJson(message.data[content], PushMessage::class.java)
+
+        when (push.recipientId) {
+            id -> handleContent(push.content)
+            0L -> AppAuth.getInstance().sendPushToken()
+            null -> handleContent(push.content)
+            else -> AppAuth.getInstance().sendPushToken()
         }
     }
 
     override fun onNewToken(token: String) {
         println(token)
+        AppAuth.getInstance().sendPushToken(token)
+    }
+
+    private fun handleContent(content: String) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        NotificationManagerCompat.from(this)
+            .notify(Random.nextInt(100_000), notification)
     }
 
     private fun handleLike(content: Like) {
@@ -75,3 +99,7 @@ data class Like(
     val postAuthor: String,
 )
 
+data class PushMessage(
+    val recipientId: Long?,
+    val content: String,
+)
