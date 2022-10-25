@@ -5,40 +5,54 @@ import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.model.FeedModel
-import ru.netology.nmedia.model.FeedModelState
-import ru.netology.nmedia.model.MediaModel
-import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.model.*
+import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
-import java.io.IOException
-import java.net.ConnectException
 
 private val empty = Post(
     id = 0,
     content = "",
     author = "",
+    authorId = 0L,
     authorAvatar = "",
     likedByMe = false,
+    ownedByMe = false,
     likes = 0,
     published = ""
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
-    //локальная БД
-    private val repository: PostRepository = PostRepositoryImpl(
-        AppDb.getInstance(application).postDao()
-    )
+    val isAuthorized: Boolean
+        get() = AppAuth.getInstance()
+            .data
+            .value
+            ?.token != null
 
-    val data: LiveData<FeedModel> = repository.data
-        .map(::FeedModel)
+    //локальная БД
+    private val repository: PostRepository =
+        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
+
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .data
+        .flatMapLatest { auth ->
+            repository.data
+                .map {
+                    FeedModel(
+                        posts = it.map { post ->
+                            post.copy(ownedByMe = auth?.id == post.authorId)
+                        },
+                        empty = it.isEmpty(),
+                    )
+                }
+        }
         .asLiveData(Dispatchers.Default)
 
     private val _dataState = MutableLiveData(FeedModelState())
@@ -46,7 +60,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         get() = _dataState
 
     private val noPhoto = MediaModel()
-
     private val _media = MutableLiveData(noPhoto)
     val media: LiveData<MediaModel>
         get() = _media
@@ -76,7 +89,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadPosts()
     }
-
 
     fun loadPosts() {
         viewModelScope.launch {
@@ -152,6 +164,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         edited.value = empty
+        clearPhoto()
     }
 
     fun likeById(post: Post) {
@@ -212,12 +225,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _error.value = e
             }
         }
-    }
-
-    fun parseException (e: Exception) = when (e) {
-        is ConnectException -> "Internet error"
-        is IOException -> "Server error"
-        else -> "Unknown error"
     }
 
 }

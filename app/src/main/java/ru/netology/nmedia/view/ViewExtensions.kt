@@ -1,6 +1,11 @@
 package ru.netology.nmedia.view
 
+import android.content.ContentProvider
+import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -19,3 +24,10 @@ fun ImageView.loadImage(url: String, vararg transforms: BitmapTransformation = e
 
 fun ImageView.loadAvatar(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
     loadImage(url, CircleCrop(), *transforms)
+
+fun View.createToast(@StringRes textId: Int) =
+    Toast.makeText(
+        context,
+        context?.getString(textId),
+        Toast.LENGTH_SHORT
+    ).show()

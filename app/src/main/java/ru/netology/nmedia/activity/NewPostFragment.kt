@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -121,40 +122,3 @@ class NewPostFragment : Fragment() {
         return binding.root
     }
 }
-
-//override fun onCreateView(
-//    inflater: LayoutInflater,
-//    container: ViewGroup?,
-//    savedInstanceState: Bundle?
-//): View {
-//    val binding = FragmentNewPostBinding.inflate(
-//        inflater,
-//        container,
-//        false
-//    )
-//
-//    arguments?.textArg
-//        ?.let(binding.edit::setText)
-//
-//    binding.ok.setOnClickListener {
-//        if (binding.edit.text.isNullOrBlank()) {
-//            Toast.makeText(
-//                context,
-//                context?.getString(R.string.error_empty_content),
-//                Toast.LENGTH_SHORT
-//            ).show()
-//            return@setOnClickListener
-//        }
-//
-//        viewModel.changeContent(binding.edit.text.toString())
-//        viewModel.save()
-//        AndroidUtils.hideKeyboard(requireView())
-//    }
-//
-//    viewModel.postCreated.observe(viewLifecycleOwner) {
-//        viewModel.loadPosts()
-//        findNavController().navigateUp()
-//    }
-//
-//    return binding.root
-//}

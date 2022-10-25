@@ -24,6 +24,25 @@
             app:exitAnim="@android:anim/fade_out"
             app:popEnterAnim="@android:anim/fade_in"
             app:popExitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/action_feedFragment_to_authentificationFragment"
+            app:destination="@id/authentificationFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
+
+        <action
+            android:id="@+id/action_feedFragment_to_myDialogFragment"
+            app:destination="@id/myDialogFragment" />
+
+        <action
+            android:id="@+id/action_feedFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
     </fragment>
 
     <fragment
@@ -36,4 +55,17 @@
         android:name="ru.netology.nmedia.activity.ImageFragment"
         android:label="ImageFragment"
         tools:layout="@layout/fragment_image"/>
+    <fragment
+        android:id="@+id/authentificationFragment"
+        android:name="ru.netology.nmedia.activity.AuthentificationFragment"
+        android:label="fragment_registration"
+        tools:layout="@layout/fragment_authentification" />
+    <dialog
+        android:id="@+id/myDialogFragment"
+        android:name="ru.netology.nmedia.activity.MyDialogFragment"
+        android:label="MyDialogFragment" />
+    <fragment
+        android:id="@+id/registrationFragment"
+        android:name="ru.netology.nmedia.activity.RegistrationFragment"
+        android:label="RegistrationFragment" />
 </navigation>
