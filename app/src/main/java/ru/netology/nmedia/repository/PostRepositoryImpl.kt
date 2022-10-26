@@ -2,7 +2,6 @@ package ru.netology.nmedia.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import ru.netology.nmedia.api.ApiServiceHolder
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toDto
@@ -10,13 +9,17 @@ import ru.netology.nmedia.error.*
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.toEntity
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
-
-class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
+class PostRepositoryImpl @Inject constructor(
+    private val postDao: PostDao,
+    private val apiService: ApiService
+    ): PostRepository {
 
     override val data = postDao.getAll()
         .map(List<PostEntity>::toDto)
@@ -24,7 +27,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = ApiServiceHolder.service.getAll()
+            val response = apiService.getAll()
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -50,7 +53,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
     override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000L)
-            val response = ApiServiceHolder.service.getNewer(latestPostId)
+            val response = apiService.getNewer(latestPostId)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -77,7 +80,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         try {
             postDao.likeById(post.id)
 
-            val response = ApiServiceHolder.service.likeById(post.id)
+            val response = apiService.likeById(post.id)
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -92,7 +95,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         try {
             postDao.likeById(post.id)
 
-            val response = ApiServiceHolder.service.dislikeById(post.id)
+            val response = apiService.dislikeById(post.id)
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -108,7 +111,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
             val postEntity = PostEntity.fromDto(post)
             postDao.save(postEntity)
 
-            val response = ApiServiceHolder.service.save(post)
+            val response = apiService.save(post)
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -128,12 +131,9 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
 
     override suspend fun saveWithAttachment(post: Post, file: File) {
         try {
-//            val postEntity = PostEntity.fromDto(post)
-//            postDao.save(postEntity)
-
             val media = upload(file)
 
-            val response = ApiServiceHolder.service.save(
+            val response = apiService.save(
                 post.copy(
                     attachment = Attachment(
                         url = media.id,
@@ -164,7 +164,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
         try {
             postDao.removeById(id)
 
-            val response = ApiServiceHolder.service.removeById(id)
+            val response = apiService.removeById(id)
             if (!response.isSuccessful) {
                 throw Exception(response.message())
             }
@@ -211,7 +211,7 @@ class PostRepositoryImpl(private val postDao: PostDao): PostRepository {
             "file", file.name, file.asRequestBody()
         )
 
-        val response = ApiServiceHolder.service.upload(media)
+        val response = apiService.upload(media)
         if (!response.isSuccessful) {
             throw ApiError(response.code(), response.message())
         }

@@ -1,17 +1,22 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.api.ApiServiceHolder
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.util.SingleLiveEvent
+import javax.inject.Inject
 
-class AuthentificationViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class AuthentificationViewModel @Inject constructor(
+    private val appAuth: AppAuth,
+    private val apiService: ApiService
+) : ViewModel() {
 
     private val _responseAuthState = MutableLiveData<AuthState?>(null)
     val responseAuthState: LiveData<AuthState?>
@@ -24,7 +29,7 @@ class AuthentificationViewModel(application: Application) : AndroidViewModel(app
     fun updateUser(login: String, pass: String) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = ApiServiceHolder.service.updateUser(login, pass).body()
+                _responseAuthState.value = apiService.updateUser(login, pass).body()
             } catch (e: Exception) {
                 _error.value = e
             }
@@ -32,7 +37,7 @@ class AuthentificationViewModel(application: Application) : AndroidViewModel(app
     }
 
     fun saveToken(token: String, id: Long) {
-        AppAuth.getInstance().saveAuth(token, id)
+        appAuth.saveAuth(token, id)
     }
 
 }
