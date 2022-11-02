@@ -1,24 +1,29 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.netology.nmedia.api.ApiServiceHolder
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.model.MediaModel
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import javax.inject.Inject
 
-class RegistrationViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class RegistrationViewModel @Inject constructor(
+    private val appAuth: AppAuth,
+    private val apiService: ApiService
+) : ViewModel() {
 
     private val noPhoto = MediaModel()
     private val _media = MutableLiveData(noPhoto)
@@ -38,13 +43,13 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
         get() = _error
 
     fun saveToken(token: String, id: Long) {
-        AppAuth.getInstance().saveAuth(token, id)
+        appAuth.saveAuth(token, id)
     }
 
     fun registerUser(login: String, pass: String, name: String) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = ApiServiceHolder.service.registerUser(login, pass, name).body()
+                _responseAuthState.value = apiService.registerUser(login, pass, name).body()
             } catch (e: Exception) {
                 _error.value = e
             }
@@ -54,7 +59,7 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
     fun registerWithPhoto(login: String, pass: String, name: String, file: File) {
         viewModelScope.launch {
             try {
-                _responseAuthState.value = ApiServiceHolder.service.registerWithPhoto(
+                _responseAuthState.value = apiService.registerWithPhoto(
                     login.toRequestBody("text/plain".toMediaType()),
                     pass.toRequestBody("text/plain".toMediaType()),
                     name.toRequestBody("text/plain".toMediaType()),

@@ -1,44 +1,11 @@
 package ru.netology.nmedia.api
 
-import okhttp3.RequestBody
 import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
-import ru.netology.nmedia.BuildConfig
-import ru.netology.nmedia.auth.*
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dto.*
-
-private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
-
-private val logging = HttpLoggingInterceptor().apply {
-    if (BuildConfig.DEBUG) {
-        level = HttpLoggingInterceptor.Level.BASIC
-    }
-}
-
-private val okhttp = OkHttpClient.Builder()
-    .addInterceptor(logging)
-    .addInterceptor { chain ->
-        val request = AppAuth.getInstance().data.value?.token?.let {
-            chain.request()
-                .newBuilder()
-                .addHeader("Authorization", it)
-                .build()
-        } ?: chain.request()
-
-        chain.proceed(request)
-    }
-    .build()
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(GsonConverterFactory.create())
-    .baseUrl(BASE_URL)
-    .client(okhttp)
-    .build()
 
 interface ApiService {
     @GET("posts")
@@ -91,10 +58,4 @@ interface ApiService {
     @POST("users/push-tokens")
     suspend fun sendPushToken(@Body pushToken: PushToken): Response<Unit>
 
-}
-
-object ApiServiceHolder {
-    val service: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
-    }
 }

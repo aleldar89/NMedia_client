@@ -16,7 +16,7 @@ interface PostDao {
 
     // меняет статус на "показывать"
     @Query("UPDATE PostEntity SET shown = 1 WHERE shown = 0")
-    fun showAll()
+    suspend fun showAll()
 
     @Query("SELECT COUNT(*) == 0 FROM PostEntity")
     suspend fun isEmpty(): Boolean

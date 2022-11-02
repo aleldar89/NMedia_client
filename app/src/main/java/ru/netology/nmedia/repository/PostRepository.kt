@@ -10,7 +10,6 @@ interface PostRepository {
     fun getNewerCount(latestPostId: Long): Flow<Int>
     suspend fun showAll()
     suspend fun getById(id: Long): Post
-//    fun getById(id: Long): Post
     suspend fun removeById(id: Long)
     suspend fun likeById(post: Post)
     suspend fun dislikeById(post: Post)
