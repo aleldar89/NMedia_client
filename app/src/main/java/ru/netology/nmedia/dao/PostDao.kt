@@ -1,6 +1,6 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -13,6 +13,9 @@ interface PostDao {
     // выбирает PostEntity со статусом "показывать"
     @Query("SELECT * FROM PostEntity WHERE shown = 1 ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT * FROM PostEntity WHERE shown = 1 ORDER BY id DESC")
+    fun getPagingSource(): PagingSource<Int, PostEntity>
 
     // меняет статус на "показывать"
     @Query("UPDATE PostEntity SET shown = 1 WHERE shown = 0")
@@ -46,7 +49,8 @@ interface PostDao {
     suspend fun updateContentById(id: Long, content: String, likedByMe: Boolean, likes: Int)
 
     suspend fun save(post: PostEntity) =
-        if (post.id == 0L) insert(post) else updateContentById(post.id, post.content, post.likedByMe, post.likes)
+        if (post.id == 0L) insert(post)
+        else updateContentById(post.id, post.content, post.likedByMe, post.likes)
 
     suspend fun saveOld(post: PostEntity) = insert(post)
 
@@ -63,5 +67,8 @@ interface PostDao {
 
     @Query("SELECT * FROM PostEntity ORDER BY ID DESC LIMIT 1")
     suspend fun selectLast(): PostEntity
+
+    @Query("DELETE FROM PostEntity")
+    suspend fun clear()
 
 }

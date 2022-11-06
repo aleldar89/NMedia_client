@@ -8,13 +8,11 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -103,7 +101,7 @@ class FeedFragment : Fragment() {
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
-//            binding.swipeRefresh.isVisible = state.refreshing
+//            binding.swipeRefresh.isRefreshing = state.refreshing
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
@@ -126,17 +124,19 @@ class FeedFragment : Fragment() {
 //        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
 //            binding.newPosts.isVisible = state != 0
 //        }
-
-        binding.newPosts.setOnClickListener {
-            viewModel.refreshPosts()
-            binding.newPosts.isVisible = false
-        }
+//
+//        binding.newPosts.setOnClickListener {
+//            viewModel.refreshPosts()
+//            binding.newPosts.isVisible = false
+//        }
 
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest {
-                binding.swipeRefresh.isRefreshing = it.refresh is LoadState.Loading
-                        || it.append is LoadState.Loading
-                        || it.prepend is LoadState.Loading
+                binding.swipeRefresh.isRefreshing =
+                    it.refresh is LoadState.Loading ||
+                    it.prepend is LoadState.Loading ||
+                    it.append is LoadState.Loading
+
             }
         }
 
