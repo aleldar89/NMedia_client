@@ -1,15 +1,17 @@
 package ru.netology.nmedia.repository
 
+import androidx.paging.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.error.*
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.toEntity
 import java.io.File
@@ -18,12 +20,28 @@ import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
-    private val apiService: ApiService
-    ): PostRepository {
+    private val apiService: ApiService,
+    postRemoteKeyDao: PostRemoteKeyDao,
+    appDb: AppDb
+) : PostRepository {
 
-    override val data = postDao.getAll()
-        .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+//    override val data = postDao.getAll()
+//        .map(List<PostEntity>::toDto)
+//        .flowOn(Dispatchers.Default)
+
+    @OptIn(ExperimentalPagingApi::class)
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = { postDao.getPagingSource() },
+        remoteMediator = PostRemoteMediator(
+            apiService = apiService,
+            postDao = postDao,
+            postRemoteKeyDao = postRemoteKeyDao,
+            appDb = appDb
+        )
+    ).flow.map {
+        it.map(PostEntity::toDto)
+    }
 
     override suspend fun getAll() {
         try {
@@ -50,21 +68,21 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
-        while (true) {
-            delay(10_000L)
-            val response = apiService.getNewer(latestPostId)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
-            }
-
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(body.toEntity())
-            emit(body.size)
-        }
-    }
-        .catch { e -> throw AppError.from(e) }
-        .flowOn(Dispatchers.Default)
+//    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
+//        while (true) {
+//            delay(10_000L)
+//            val response = apiService.getNewer(latestPostId)
+//            if (!response.isSuccessful) {
+//                throw ApiError(response.code(), response.message())
+//            }
+//
+//            val body = response.body() ?: throw ApiError(response.code(), response.message())
+//            postDao.insert(body.toEntity())
+//            emit(body.size)
+//        }
+//    }
+//        .catch { e -> throw AppError.from(e) }
+//        .flowOn(Dispatchers.Default)
 
     override suspend fun getById(id: Long): Post {
         try {
@@ -114,8 +132,7 @@ class PostRepositoryImpl @Inject constructor(
             val response = apiService.save(post)
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
-            }
-            else {
+            } else {
                 val _post = response.body()
                 if (_post != null) {
                     postDao.updatePostId(_post.id)
@@ -206,7 +223,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun upload (file: File): Media {
+    private suspend fun upload(file: File): Media {
         val media = MultipartBody.Part.createFormData(
             "file", file.name, file.asRequestBody()
         )
