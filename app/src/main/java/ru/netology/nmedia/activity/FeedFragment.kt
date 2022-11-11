@@ -82,16 +82,6 @@ class FeedFragment : Fragment() {
 
         binding.list.adapter = adapter
 
-//        viewModel.data.observe(viewLifecycleOwner) { state ->
-//            val newPosts = adapter.currentList.size < state.posts.size
-//            adapter.submitList(state.posts) {
-//                if (newPosts) {
-//                    binding.list.smoothScrollToPosition(0)
-//                }
-//            }
-//            binding.emptyText.isVisible = state.empty
-//        }
-
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest {
                 adapter.submitData(it)
@@ -101,7 +91,7 @@ class FeedFragment : Fragment() {
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.errorGroup.isVisible = state.error
-//            binding.swipeRefresh.isRefreshing = state.refreshing
+            binding.swipeRefresh.isRefreshing = state.refreshing
         }
 
         viewModel.error.observe(viewLifecycleOwner) {

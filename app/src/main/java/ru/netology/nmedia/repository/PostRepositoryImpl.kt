@@ -68,21 +68,21 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
-        while (true) {
-            delay(10_000L)
-            val response = apiService.getNewer(latestPostId)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
-            }
-
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(body.toEntity())
-            emit(body.size)
-        }
-    }
-        .catch { e -> throw AppError.from(e) }
-        .flowOn(Dispatchers.Default)
+//    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
+//        while (true) {
+//            delay(10_000L)
+//            val response = apiService.getNewer(latestPostId)
+//            if (!response.isSuccessful) {
+//                throw ApiError(response.code(), response.message())
+//            }
+//
+//            val body = response.body() ?: throw ApiError(response.code(), response.message())
+//            postDao.insert(body.toEntity())
+//            emit(body.size)
+//        }
+//    }
+//        .catch { e -> throw AppError.from(e) }
+//        .flowOn(Dispatchers.Default)
 
     override suspend fun getById(id: Long): Post {
         try {

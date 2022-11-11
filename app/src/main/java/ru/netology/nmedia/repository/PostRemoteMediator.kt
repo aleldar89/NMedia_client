@@ -23,12 +23,16 @@ class PostRemoteMediator(
     override suspend fun load(loadType: LoadType, state: PagingState<Int, PostEntity>): MediatorResult {
         try {
             val response = when (loadType) {
-                LoadType.REFRESH -> apiService.getLatest(state.config.pageSize)
 
-                LoadType.PREPEND -> {
-                    val id = postRemoteKeyDao.max() ?: return MediatorResult.Success(false)
-                    apiService.getAfter(id, state.config.pageSize)
+                LoadType.REFRESH -> {
+                    val id = postRemoteKeyDao.max()
+                    if (id != null)
+                        apiService.getAfter(id, state.config.pageSize)
+                    else
+                        apiService.getLatest(state.config.pageSize)
                 }
+
+                LoadType.PREPEND -> return MediatorResult.Success(true)
 
                 LoadType.APPEND -> {
                     val id = postRemoteKeyDao.min() ?: return MediatorResult.Success(false)
@@ -44,18 +48,22 @@ class PostRemoteMediator(
 
             appDb.withTransaction {
                 when (loadType) {
-                    //TODO REFRESH не затирал предыдущий кеш, а добавлял данные сверху, учитывая ID последнего поста сверху.
                     LoadType.REFRESH -> {
-                        postDao.clear()
-                        postRemoteKeyDao.insert(
-                            listOf(
-                                PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id),
-                                PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.BEFORE, body.last().id)
+                        val id = postRemoteKeyDao.max()
+                        if (id != null) {
+                            postRemoteKeyDao.insert(
+                                listOf(
+                                    PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id),
+                                    PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.BEFORE, body.last().id)
+                                )
                             )
-                        )
+                        } else {
+                            postRemoteKeyDao.insert(
+                                PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id)
+                            )
+                        }
                     }
 
-                    //TODO Автоматический PREPEND был отключен, т.е. при scroll к первому сверху элементу данные автоматически не подгружались.
                     LoadType.PREPEND -> {
                         postRemoteKeyDao.insert(
                             PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id)
