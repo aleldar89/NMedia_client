@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.adapter.PostViewHolder.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -80,18 +81,15 @@ class FeedFragment : Fragment() {
 
         })
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter { adapter.retry() },
+            footer = PostLoadingStateAdapter { adapter.retry() }
+        )
 
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest {
                 adapter.submitData(it)
             }
-        }
-
-        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
-            binding.swipeRefresh.isRefreshing = state.refreshing
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
@@ -111,22 +109,15 @@ class FeedFragment : Fragment() {
             viewModel.loadPosts()
         }
 
-//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-//            binding.newPosts.isVisible = state != 0
-//        }
-//
-//        binding.newPosts.setOnClickListener {
-//            viewModel.refreshPosts()
-//            binding.newPosts.isVisible = false
-//        }
-
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest {
                 binding.swipeRefresh.isRefreshing =
-                    it.refresh is LoadState.Loading ||
-                    it.prepend is LoadState.Loading ||
-                    it.append is LoadState.Loading
+                    it.refresh is LoadState.Loading
 
+                binding.errorGroup.isVisible =
+                    it.refresh is LoadState.Error
+                            || it.append is LoadState.Error
+                            || it.prepend is LoadState.Error
             }
         }
 

@@ -1,15 +1,12 @@
-package ru.netology.nmedia.view
+package ru.netology.nmedia.extensions
 
-import android.content.ContentProvider
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.request.RequestOptions
 import ru.netology.nmedia.R
 
 fun ImageView.loadImage(url: String, vararg transforms: BitmapTransformation = emptyArray()) =
@@ -31,3 +28,10 @@ fun View.createToast(@StringRes textId: Int) =
         context?.getString(textId),
         Toast.LENGTH_SHORT
     ).show()
+
+fun String.timeDescription() =
+    when (this.toLong() / 86400) {
+        in 0..1 -> "Сегодня"
+        in 1..2 -> "Вчера"
+        else -> "На прошлой неделе"
+    }

@@ -33,4 +33,5 @@
     <string name="error_registration">Registration failed, try later</string>
     <string name="choose_avatar">Choose your avatar</string>
     <string name="image_error">Image not captured</string>
+    <string name="retry">Retry</string>
 </resources>

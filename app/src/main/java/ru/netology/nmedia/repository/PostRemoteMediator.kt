@@ -76,6 +76,12 @@ class PostRemoteMediator(
                             )
                         )
                     }
+
+//                    else -> {
+//                        postRemoteKeyDao.insert(
+//                            PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id)
+//                        )
+//                    }
                 }
 
                 postDao.insert(body.map(PostEntity::fromDto))

@@ -10,17 +10,16 @@ import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-//    выбирает PostEntity со статусом "показывать"
+    //выбирает PostEntity со статусом "показывать"
     @Query("SELECT * FROM PostEntity WHERE shown = 1 ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
 
-//    @Query("SELECT * FROM PostEntity WHERE shown = 1 ORDER BY id DESC")
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getPagingSource(): PagingSource<Int, PostEntity>
-
-//    меняет статус на "показывать"
+    //меняет статус на "показывать"
     @Query("UPDATE PostEntity SET shown = 1 WHERE shown = 0")
     suspend fun showAll()
+
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
+    fun getPagingSource(): PagingSource<Int, PostEntity>
 
     @Query("SELECT COUNT(*) == 0 FROM PostEntity")
     suspend fun isEmpty(): Boolean

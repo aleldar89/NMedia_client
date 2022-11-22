@@ -34,4 +34,5 @@
     <string name="error_confirm_password">Подтвердите пароль</string>
     <string name="choose_avatar">Выберите аватар</string>
     <string name="image_error">Изображение отсутствует</string>
+    <string name="retry">Попробовать еще раз</string>
 </resources>

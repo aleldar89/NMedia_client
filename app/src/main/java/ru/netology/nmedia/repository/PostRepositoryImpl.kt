@@ -1,8 +1,6 @@
 package ru.netology.nmedia.repository
 
 import androidx.paging.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.error.*
@@ -13,9 +11,10 @@ import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.*
-import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.extensions.timeDescription
 import java.io.File
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
@@ -25,12 +24,8 @@ class PostRepositoryImpl @Inject constructor(
     appDb: AppDb
 ) : PostRepository {
 
-//    override val data = postDao.getAll()
-//        .map(List<PostEntity>::toDto)
-//        .flowOn(Dispatchers.Default)
-
     @OptIn(ExperimentalPagingApi::class)
-    override val data: Flow<PagingData<Post>> = Pager(
+    override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
         pagingSourceFactory = { postDao.getPagingSource() },
         remoteMediator = PostRemoteMediator(
@@ -41,6 +36,22 @@ class PostRepositoryImpl @Inject constructor(
         )
     ).flow.map {
         it.map(PostEntity::toDto)
+            .insertSeparators { previous, _ ->
+                if (previous?.id?.rem(5) == 0L) {
+                    Ad(kotlin.random.Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
+            }
+            .insertSeparators { previous, _ ->
+                if (previous is Post) {
+                    Timing(
+                        kotlin.random.Random.nextLong(),
+                        previous.published.timeDescription())
+                } else {
+                    null
+                }
+            }
     }
 
     override suspend fun getAll() {
@@ -67,22 +78,6 @@ class PostRepositoryImpl @Inject constructor(
             throw e
         }
     }
-
-//    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
-//        while (true) {
-//            delay(10_000L)
-//            val response = apiService.getNewer(latestPostId)
-//            if (!response.isSuccessful) {
-//                throw ApiError(response.code(), response.message())
-//            }
-//
-//            val body = response.body() ?: throw ApiError(response.code(), response.message())
-//            postDao.insert(body.toEntity())
-//            emit(body.size)
-//        }
-//    }
-//        .catch { e -> throw AppError.from(e) }
-//        .flowOn(Dispatchers.Default)
 
     override suspend fun getById(id: Long): Post {
         try {
