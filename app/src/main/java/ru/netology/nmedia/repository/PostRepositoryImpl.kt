@@ -1,29 +1,74 @@
 package ru.netology.nmedia.repository
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.paging.*
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.error.*
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.*
-import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.extensions.days
 import java.io.File
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
-    private val apiService: ApiService
-    ): PostRepository {
+    private val apiService: ApiService,
+    postRemoteKeyDao: PostRemoteKeyDao,
+    appDb: AppDb
+) : PostRepository {
 
-    override val data = postDao.getAll()
-        .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalPagingApi::class)
+    override val data: Flow<PagingData<FeedItem>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = { postDao.getPagingSource() },
+        remoteMediator = PostRemoteMediator(
+            apiService = apiService,
+            postDao = postDao,
+            postRemoteKeyDao = postRemoteKeyDao,
+            appDb = appDb
+        )
+    ).flow.map {
+        it.map(PostEntity::toDto)
+            .insertSeparators { previous, _ ->
+                if (previous?.id?.rem(5) == 0L) {
+                    Ad(kotlin.random.Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
+            }
+            .insertSeparators { previous, next ->
+                if (previous == null && next is Post) {
+                    TimeDescriptor(kotlin.random.Random.nextLong(), "Сегодня")
+
+                } else if (previous is Post && next is Post) {
+
+                    if (previous.days() <= 1 && next.days() <= 1) {
+                        null
+                    } else if (previous.days() <= 2 && next.days() <= 2) {
+                        null
+                    } else if (previous.days() <= 2) {
+                        TimeDescriptor(kotlin.random.Random.nextLong(), "Вчера")
+                    } else if (previous.days() >= 2 && next.days() >= 2) {
+                        null
+                    } else if (previous.days() >= 2) {
+                        TimeDescriptor(kotlin.random.Random.nextLong(), "На прошлой неделе")
+                    } else
+                        null
+
+                } else
+                    null
+            }
+    }
 
     override suspend fun getAll() {
         try {
@@ -49,22 +94,6 @@ class PostRepositoryImpl @Inject constructor(
             throw e
         }
     }
-
-    override fun getNewerCount(latestPostId: Long): Flow<Int> = flow {
-        while (true) {
-            delay(10_000L)
-            val response = apiService.getNewer(latestPostId)
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
-            }
-
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            postDao.insert(body.toEntity())
-            emit(body.size)
-        }
-    }
-        .catch { e -> throw AppError.from(e) }
-        .flowOn(Dispatchers.Default)
 
     override suspend fun getById(id: Long): Post {
         try {
@@ -114,8 +143,7 @@ class PostRepositoryImpl @Inject constructor(
             val response = apiService.save(post)
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
-            }
-            else {
+            } else {
                 val _post = response.body()
                 if (_post != null) {
                     postDao.updatePostId(_post.id)
@@ -206,7 +234,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun upload (file: File): Media {
+    private suspend fun upload(file: File): Media {
         val media = MultipartBody.Part.createFormData(
             "file", file.name, file.asRequestBody()
         )

@@ -8,13 +8,15 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.adapter.PostViewHolder.Companion.textArg
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -79,22 +81,15 @@ class FeedFragment : Fragment() {
 
         })
 
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter { adapter.retry() },
+            footer = PostLoadingStateAdapter { adapter.retry() }
+        )
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val newPosts = adapter.currentList.size < state.posts.size
-            adapter.submitList(state.posts) {
-                if (newPosts) {
-                    binding.list.smoothScrollToPosition(0)
-                }
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest {
+                adapter.submitData(it)
             }
-            binding.emptyText.isVisible = state.empty
-        }
-
-        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.errorGroup.isVisible = state.error
-//            binding.swipeRefresh.isVisible = state.refreshing
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
@@ -106,22 +101,28 @@ class FeedFragment : Fragment() {
                 .show()
         }
 
+        viewModel.authorization.observe(viewLifecycleOwner) {
+            adapter.refresh()
+        }
+
         binding.retryButton.setOnClickListener {
             viewModel.loadPosts()
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            binding.newPosts.isVisible = state != 0
-        }
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest {
+                binding.swipeRefresh.isRefreshing =
+                    it.refresh is LoadState.Loading
 
-        binding.newPosts.setOnClickListener {
-            viewModel.refreshPosts()
-            binding.newPosts.isVisible = false
+                binding.errorGroup.isVisible =
+                    it.refresh is LoadState.Error
+                    || it.append is LoadState.Error
+                    || it.prepend is LoadState.Error
+            }
         }
 
         binding.swipeRefresh.setOnRefreshListener {
-            viewModel.swipeRefresh()
-            binding.swipeRefresh.isRefreshing = false
+            adapter.refresh()
         }
 
         binding.fab.setOnClickListener {

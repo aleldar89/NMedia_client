@@ -9,7 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.databinding.FragmentImageBinding
 import ru.netology.nmedia.util.StringArg
-import ru.netology.nmedia.view.loadImage
+import ru.netology.nmedia.extensions.loadImage
 
 @AndroidEntryPoint
 class ImageFragment : Fragment() {

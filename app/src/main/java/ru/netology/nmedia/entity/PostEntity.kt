@@ -30,9 +30,6 @@ data class PostEntity(
         likedByMe = likedByMe,
         ownedByMe = false,
         likes = likes,
-//        attachment = attachment?.let {
-//            Attachment(it.url, it.type)
-//        }
         attachment = attachment?.toDto()
     )
 

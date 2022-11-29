@@ -13,7 +13,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentAuthentificationBinding
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.parseException
-import ru.netology.nmedia.view.createToast
+import ru.netology.nmedia.extensions.createToast
 import ru.netology.nmedia.viewmodel.AuthentificationViewModel
 
 @AndroidEntryPoint
