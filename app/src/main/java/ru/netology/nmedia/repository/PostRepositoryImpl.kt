@@ -1,5 +1,7 @@
 package ru.netology.nmedia.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.paging.*
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.PostEntity
@@ -11,7 +13,7 @@ import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.*
-import ru.netology.nmedia.extensions.timeDescription
+import ru.netology.nmedia.extensions.days
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -24,6 +26,7 @@ class PostRepositoryImpl @Inject constructor(
     appDb: AppDb
 ) : PostRepository {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
@@ -43,14 +46,27 @@ class PostRepositoryImpl @Inject constructor(
                     null
                 }
             }
-            .insertSeparators { previous, _ ->
-                if (previous is Post) {
-                    Timing(
-                        kotlin.random.Random.nextLong(),
-                        previous.published.timeDescription())
-                } else {
+            .insertSeparators { previous, next ->
+                if (previous == null && next is Post) {
+                    TimeDescriptor(kotlin.random.Random.nextLong(), "Сегодня")
+
+                } else if (previous is Post && next is Post) {
+
+                    if (previous.days() <= 1 && next.days() <= 1) {
+                        null
+                    } else if (previous.days() <= 2 && next.days() <= 2) {
+                        null
+                    } else if (previous.days() <= 2) {
+                        TimeDescriptor(kotlin.random.Random.nextLong(), "Вчера")
+                    } else if (previous.days() >= 2 && next.days() >= 2) {
+                        null
+                    } else if (previous.days() >= 2) {
+                        TimeDescriptor(kotlin.random.Random.nextLong(), "На прошлой неделе")
+                    } else
+                        null
+
+                } else
                     null
-                }
             }
     }
 

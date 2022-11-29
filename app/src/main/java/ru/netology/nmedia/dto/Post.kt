@@ -22,7 +22,7 @@ data class Ad(
     val image: String
 ) : FeedItem
 
-data class Timing(
+data class TimeDescriptor(
     override val id: Long,
     val description: String
 ) : FeedItem

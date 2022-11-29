@@ -116,8 +116,8 @@ class FeedFragment : Fragment() {
 
                 binding.errorGroup.isVisible =
                     it.refresh is LoadState.Error
-                            || it.append is LoadState.Error
-                            || it.prepend is LoadState.Error
+                    || it.append is LoadState.Error
+                    || it.prepend is LoadState.Error
             }
         }
 

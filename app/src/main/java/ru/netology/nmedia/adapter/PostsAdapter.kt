@@ -1,9 +1,11 @@
 package ru.netology.nmedia.adapter
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -16,10 +18,11 @@ import ru.netology.nmedia.databinding.CardTimeBinding
 import ru.netology.nmedia.dto.Ad
 import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.dto.Timing
+import ru.netology.nmedia.dto.TimeDescriptor
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.extensions.loadAvatar
 import ru.netology.nmedia.extensions.loadImage
+import ru.netology.nmedia.extensions.createDate
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -36,7 +39,7 @@ class PostsAdapter(
 
     override fun getItemViewType(position: Int): Int =
         when (getItem(position)) {
-            is Timing -> R.layout.card_time
+            is TimeDescriptor -> R.layout.card_time
             is Ad -> R.layout.card_ad
             is Post -> R.layout.card_post
             null -> error("unknown item type")
@@ -66,9 +69,10 @@ class PostsAdapter(
             else -> error("unknown view type: $viewType")
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = getItem(position)) {
-            is Timing -> (holder as? TimeViewHolder)?.bind(item)
+            is TimeDescriptor -> (holder as? TimeViewHolder)?.bind(item)
             is Ad -> (holder as? AdViewHolder)?.bind(item)
             is Post -> (holder as? PostViewHolder)?.bind(item)
             null -> error("unknown item type")
@@ -79,7 +83,7 @@ class PostsAdapter(
 class TimeViewHolder(
     private val binding: CardTimeBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(time: Timing) {
+    fun bind(time: TimeDescriptor) {
         binding.description.text = time.description
     }
 }
@@ -101,6 +105,7 @@ class PostViewHolder(
         var Bundle.textArg: String? by StringArg
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun bind(post: Post) {
 
         binding.apply {
@@ -115,7 +120,7 @@ class PostViewHolder(
             }
 
             author.text = post.author
-            published.text = post.published
+            published.text = post.createDate()
             content.text = post.content
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"

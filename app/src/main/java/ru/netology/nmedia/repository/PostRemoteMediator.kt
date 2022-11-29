@@ -46,7 +46,12 @@ class PostRemoteMediator(
 
             val body = response.body() ?: throw ApiError(response.code(), response.message())
 
+            if (body.isEmpty()) {
+                return MediatorResult.Success(true)
+            }
+
             appDb.withTransaction {
+
                 when (loadType) {
                     LoadType.REFRESH -> {
                         val id = postRemoteKeyDao.max()
@@ -76,12 +81,6 @@ class PostRemoteMediator(
                             )
                         )
                     }
-
-//                    else -> {
-//                        postRemoteKeyDao.insert(
-//                            PostRemoteKeyEntity(PostRemoteKeyEntity.KeyType.AFTER, body.first().id)
-//                        )
-//                    }
                 }
 
                 postDao.insert(body.map(PostEntity::fromDto))
